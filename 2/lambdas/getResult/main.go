@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -15,13 +17,16 @@ type Event struct {
 	Id string `json:"id"`
 }
 
-//type Item struct {
-//	Id     string
-//	Result string
-//}
+func HandleRequest(_ context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	print("[INFO] Init...\n")
 
-func HandleRequest(ctx context.Context, event Event) (string, error) {
-	print("[INFO] Init...")
+	// Parsing request...
+	event := Event{}
+	err := json.Unmarshal([]byte(request.Body), &event)
+	if err != nil {
+		fmt.Println("ERROR:" + err.Error())
+		return events.APIGatewayProxyResponse{Body: request.Body, StatusCode: 500}, err
+	}
 
 	// SDK session and credentials:
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -30,11 +35,10 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
-
 	tableName := os.Getenv("DYNAMODB_TABLE")
 
+	// Getting item from DB:
 	print(fmt.Sprintf("[INFO] Getting ID '%s' from database...\n", event.Id))
-
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -47,17 +51,11 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 		log.Fatalf("Got error calling GetItem: %s", err)
 	}
 	if result.Item == nil {
-		return "Could not find '" + event.Id + "'", nil
+		return events.APIGatewayProxyResponse{Body: fmt.Sprintf("{\"message\": \"not found.\"}"), StatusCode: 500}, err
 	}
 
-	//err = dynamodbattribute.UnmarshalMap(result.Item, &item)
-	//if err != nil {
-	//	panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
-	//}
-
-	fmt.Println("[INFO] Item:  ", result.Item)
-
-	return fmt.Sprintf("%s", result.Item), nil
+	fmt.Println("[INFO] Item result:  ", *result.Item["Result"].N)
+	return events.APIGatewayProxyResponse{Body: fmt.Sprintf("{\"result\": %s}", *result.Item["Result"].N), StatusCode: 200}, nil
 }
 
 func main() {

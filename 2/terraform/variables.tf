@@ -4,23 +4,19 @@ variable "override_workspace_name" {
   default     = "serverlessAndDuplicates"
 }
 variable "region" {
-  description = ""
+  description = "AWS region."
   type        = string
-  default     = "eu-south-1"
-}
-
-variable "is_local" {
-  description = "Used for sam local invoke"
-  type        = bool
-  default     = false
-}
-
-variable "calcOccurrences_version" {
-  description = "Lambda version"
-  type        = string
-  default     = "latest"
+  default     = "eu-south-1" // Closest to Israel
 }
 
 variable "deploy_lambdas" {
+  default = true
+}
+
+variable "deploy_apigw" {
+  default = true
+}
+
+variable "deploy_dynamodb" {
   default = true
 }

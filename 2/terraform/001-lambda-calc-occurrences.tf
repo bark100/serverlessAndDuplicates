@@ -13,9 +13,9 @@ module "calcOccurrences" {
   timeout       = 5
   memory_size   = 128
 
-  source_path    = [
+  source_path = [
     {
-      path     = "../lambdas/calcOccurrences",
+      path = "../lambdas/calcOccurrences",
       commands = [
         "GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -o .build/main",
         ":zip .build/main ."
@@ -25,7 +25,7 @@ module "calcOccurrences" {
   ]
 
   environment_variables = {
-    DYNAMODB_TABLE         = aws_dynamodb_table.table.name
+    DYNAMODB_TABLE = one(aws_dynamodb_table.table[*].name)
   }
 
   attach_policies    = true

@@ -1,0 +1,32 @@
+openapi: "3.0.1"
+info:
+  version: ${version}
+  title: ${name}
+paths:
+  /calculate-number-of-occurrences:
+    post:
+      responses: {}
+      x-amazon-apigateway-integration:
+        $ref: '#/components/x-amazon-apigateway-integrations/calc'
+  /get-number-of-occurrences:
+    post:
+      responses: {}
+      x-amazon-apigateway-integration:
+        $ref: '#/components/x-amazon-apigateway-integrations/getResult'
+
+components:
+  x-amazon-apigateway-integrations:
+    calc:
+      type: AWS_PROXY
+      httpMethod: POST
+      uri: "${calc_function_arn}"
+      payloadFormatVersion: "2.0"
+      connectionType: INTERNET
+      credentials : "${lambda_execution_role_arn}"
+    getResult:
+      type: AWS_PROXY
+      httpMethod: POST
+      uri: "${getResult_function_arn}"
+      payloadFormatVersion: "2.0"
+      connectionType: INTERNET
+      credentials : "${lambda_execution_role_arn}"

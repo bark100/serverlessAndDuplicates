@@ -19,15 +19,8 @@ provider "aws" {
       env       = local.workspace
     }
   }
-  ignore_tags {
-    # Ignore tags added by "Resource Auto Tagger" tool
-    keys = ["CreatedBy", "CreationDate", "IamRoleName"]
-  }
 }
 
 locals {
-  repository_prefix          = "cnapp-graph"
-  workspace                  = lower(coalesce(var.override_workspace_name, terraform.workspace))
+  workspace         = lower(coalesce(var.override_workspace_name, terraform.workspace))
 }
-
-data "aws_caller_identity" "current" {}
