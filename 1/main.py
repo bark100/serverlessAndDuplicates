@@ -21,7 +21,7 @@ def get_file_hash(path, chunk_size=8192):
 def find_files_with_different_size(directory):
     """
     Walk through all files in all sub-folders in a directory and
-    return dict containing non-unique file sizes with their hash and path.
+    return dict containing non-unique file sizes with their size and path.
     """
 
     # Dictionary to store files needed to be hashed (different size)
